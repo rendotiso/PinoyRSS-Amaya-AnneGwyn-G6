@@ -15,7 +15,6 @@ def add_bookmark(request, article_id):
     """Create: Add an article to the logged-in user's bookmarks."""
     article = get_object_or_404(Article, id=article_id)
     
-    # Check if it already exists
     bookmark, created = Bookmark.objects.get_or_create(user=request.user, article=article)
     
     if created:
@@ -28,7 +27,7 @@ def add_bookmark(request, article_id):
 @login_required
 def my_bookmarks(request):
     """Read: Shows ONLY the logged-in user's bookmarks."""
-    # This satisfies the requirement: "Users can only view and modify their own records"
+
     bookmarks = Bookmark.objects.filter(user=request.user).order_by('-bookmarked_at')
     return render(request, 'bookmarks/my_bookmarks.html', {'bookmarks': bookmarks})
 
@@ -37,7 +36,6 @@ def delete_bookmark(request, bookmark_id):
     """Delete: Remove a bookmark. Role-based security check included."""
     bookmark = get_object_or_404(Bookmark, id=bookmark_id)
     
-    # Security check: Only the owner or an Admin can delete it
     if request.user == bookmark.user or request.user.role == 'admin':
         bookmark.delete()
         messages.success(request, "Bookmark removed.")

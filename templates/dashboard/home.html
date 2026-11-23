@@ -6,16 +6,24 @@
     
     <ul style="list-style-type: none; padding: 0; margin-bottom: 20px;">
         <li><strong>Role:</strong> {{ user.get_role_display|default:"User" }}</li>
-        <li><strong>Members:</strong> {{ member_count }}</li>
         <li><strong>Last login:</strong> {{ user.last_login|date:"M d, Y"|default:"First time here!" }}</li>
     </ul>
 
-    {% if is_admin %}
-        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p>You have administrator privileges.</p>
-        <a href="{% url 'admin_panel' %}"><button type="button">Open Admin Panel</button></a>
-    {% else %}
-        <p>You are currently viewing as a standard user.</p>
-    {% endif %}
+    <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'article_list' %}">
+            <button type="button">Read News</button>
+        </a>
+        <a href="{% url 'my_bookmarks' %}">
+            <button type="button" style="background-color: #0056b3;">My Bookmarks</button>
+        </a>
+
+        {% if is_admin %}
+            <a href="{% url 'admin_panel' %}">
+                <button type="button" style="background-color: #e11d48;">Admin Panel</button>
+            </a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import dashboard_redirect
+from . import views
 
 urlpatterns = [
-    path('', dashboard_redirect, name='dashboard'),
+    path('', views.dashboard_view, name='dashboard'),
+    path('admin-panel/', views.admin_panel_view, name='admin_panel'), 
 ]

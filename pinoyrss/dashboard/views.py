@@ -1,25 +1,9 @@
-from django.shortcuts import render
-from django.contrib.auth.mixins import (LoginRequiredMixin, UserPassesTestMixin)
-from django.views.generic import TemplateView
-from accounts.models import CustomUser
-# Create your views here.
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from accounts.models import CustomUser 
 
-class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-    template_name = 'dashboard/admin_panel.html'
-
-    def test_func(self):
-        user = self.request.user
-        return user.role == CustomUser.Roles.ADMIN
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = 'dashboard/home.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        context['user_role'] = user.role
-        context['preferred_regions'] = user.preferred_regions
-        context['preferred_languages'] = user.preferred_languages
-        return context
-
-
+@login_required
+def dashboard_redirect(request):
+    if request.user.role == CustomUser.Roles.ADMIN:
+        return redirect('accounts:admin_panel') 
+    return redirect('accounts:user_panel')     

@@ -41,7 +41,6 @@ class Article(models.Model):
     published_at = models.DateTimeField()
     fetched_at = models.DateTimeField(auto_now_add=True)
 
-    # In-app viewing: sanitised full text (filled from the feed or lazily from the source page)
     content = models.TextField(blank=True)
     content_fetched_at = models.DateTimeField(null=True, blank=True)
 

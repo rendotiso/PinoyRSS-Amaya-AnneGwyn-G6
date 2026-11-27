@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}{{ article.title }} | PinoyRSS{% endblock %}
+{% block main_class %}page-reading{% endblock %}
+
+{% block content %}
+<a class="back" href="{% url 'article_list' %}">&larr; All news</a>
+
+<article class="reader">
+    <header class="reader-head">
+        <div class="story-meta">
+            <span class="story-outlet">{{ article.outlet.outlet_name }}</span>
+            <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"F j, Y, g:i A" }}</time>
+            {% if article.category %}<a class="chip" href="{% url 'article_list' %}?category={{ article.category_id }}">{{ article.category.category_name }}</a>{% endif %}
+        </div>
+        <h1>{{ article.title }}</h1>
+        <div class="reader-tools">
+            {% if bookmark %}
+            <a class="btn btn-saved btn-sm" href="{% url 'edit_bookmark' bookmark.id %}?next={{ request.get_full_path|urlencode }}"><svg aria-hidden="true"><use href="#i-bookmark-fill"/></svg>Saved. Edit note</a>
+            {% else %}
+            <form method="post" action="{% url 'add_bookmark' article.id %}">
+                {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="btn btn-primary btn-sm" type="submit"><svg aria-hidden="true"><use href="#i-bookmark"/></svg>Save for later</button>
+            </form>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="reader-body">
+        {% if article.content %}
+            {{ article.content|safe }}
+        {% else %}
+            {% if article.summary %}<p>{{ article.summary }}</p>{% endif %}
+            <div class="notice">
+                We couldn't load the full text of this story inside PinoyRSS, so you're seeing the outlet's summary. The complete article is available at the source below.
+            </div>
+        {% endif %}
+    </div>
+
+    <footer class="reader-foot">
+        <p>Originally published by <b>{{ article.outlet.outlet_name }}</b>.</p>
+        <a class="btn btn-ink" href="{{ article.article_url }}" target="_blank" rel="noopener noreferrer">Read at the source</a>
+        <p class="muted small source-url">{{ article.article_url }}</p>
+    </footer>
+</article>
+{% endblock %}

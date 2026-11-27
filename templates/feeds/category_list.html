@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Categories | PinoyRSS{% endblock %}
+
+{% block content %}
+<header class="page-head">
+    <h1>Categories</h1>
+    <p>Pick a topic and read only what you came for.</p>
+</header>
+<div class="link-grid">
+    {% for c in categories %}
+    <a class="link-card" href="{% url 'article_list' %}?category={{ c.id }}">
+        <b>{{ c.category_name }}</b>
+        <span>{{ c.description|default:"Stories on this topic" }}</span>
+        <em>{{ c.article_count }} stor{{ c.article_count|pluralize:"y,ies" }}{% if c.today_count %}, {{ c.today_count }} new today{% endif %}</em>
+    </a>
+    {% empty %}
+    <div class="empty"><h3>No categories yet</h3><p>Run <code>python manage.py seed_library</code> to create the defaults.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

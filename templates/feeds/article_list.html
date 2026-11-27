@@ -1,30 +1,64 @@
 {% extends 'base.html' %}
+{% block title %}News | PinoyRSS{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Latest News</h2>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 10px; margin-bottom: 10px; background: #e0f2fe; border: 1px solid #7dd3fc;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+<header class="page-head">
+    <h1>{% if active_category %}{{ active_category.category_name }}{% else %}Latest news{% endif %}</h1>
+    <p>{{ page.paginator.count }} stor{{ page.paginator.count|pluralize:"y,ies" }}{% if filters_active %} match your search{% endif %}.</p>
+</header>
 
-    {% for article in articles %}
-        <div style="border-bottom: 1px solid #ddd; padding: 15px 0;">
-            <h3>{{ article.title }}</h3>
-            <p style="font-size: 0.9em; color: #666;">
-                {{ article.outlet.outlet_name }} | {{ article.published_at|date:"M d, Y" }}
-            </p>
-            <p>{{ article.summary|truncatewords:20 }}</p>
-            
-            <a href="{{ article.article_url }}" target="_blank">Read Original</a> | 
-            <a href="{% url 'add_bookmark' article.id %}"><strong>Bookmark this</strong></a>
+<form class="filters" method="get" role="search">
+    <div class="search-row">
+        <svg aria-hidden="true"><use href="#i-search"/></svg>
+        <input type="search" name="q" value="{{ q }}" placeholder="Search by keyword" aria-label="Search by keyword">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+    <details class="filter-more" {% if outlet or category or date_from or date_to %}open{% endif %}>
+        <summary>Filters</summary>
+        <div class="filter-grid">
+            <label>Outlet
+                <select name="outlet">
+                    <option value="">All outlets</option>
+                    {% for o in outlets %}<option value="{{ o.id }}" {% if outlet == o.id|stringformat:"s" %}selected{% endif %}>{{ o.outlet_name }}</option>{% endfor %}
+                </select>
+            </label>
+            <label>Category
+                <select name="category">
+                    <option value="">All categories</option>
+                    {% for c in categories %}<option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.category_name }}</option>{% endfor %}
+                </select>
+            </label>
+            <label>From
+                <input type="date" name="date_from" value="{{ date_from }}">
+            </label>
+            <label>To
+                <input type="date" name="date_to" value="{{ date_to }}">
+            </label>
         </div>
-    {% empty %}
-        <p>No articles found. (You need to scrape some RSS feeds first!)</p>
+        <div class="filter-actions">
+            <button class="btn btn-ink btn-sm" type="submit">Apply filters</button>
+            {% if filters_active %}<a class="btn btn-ghost btn-sm" href="{% url 'article_list' %}">Clear all</a>{% endif %}
+        </div>
+    </details>
+</form>
+
+<div class="chip-scroll" aria-label="Quick category filter">
+    <a class="chip chip-lg {% if not category %}is-on{% endif %}" href="{% url 'article_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}">All</a>
+    {% for c in categories %}
+    <a class="chip chip-lg {% if category == c.id|stringformat:'s' %}is-on{% endif %}" href="?category={{ c.id }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ c.category_name }}</a>
     {% endfor %}
 </div>
+
+<div class="stories">
+    {% for article in articles %}{% include "partials/article_card.html" %}
+    {% empty %}
+    <div class="empty">
+        <h3>{% if filters_active %}Nothing matches that search{% else %}No articles yet{% endif %}</h3>
+        <p>{% if filters_active %}Try fewer keywords or clear the filters.{% else %}Run <code>python manage.py fetch_rss</code> to pull in the latest stories.{% endif %}</p>
+        {% if filters_active %}<a class="btn btn-primary btn-sm" href="{% url 'article_list' %}">Clear filters</a>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% include "partials/pagination.html" %}
 {% endblock %}

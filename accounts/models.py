@@ -11,6 +11,7 @@ class CustomUser(AbstractUser):
     display_name = models.CharField(max_length=150, blank=True)
     
     email = models.EmailField(unique=True)
+    updated_at = models.DateTimeField(null=True, blank=True)  
 
     def __str__(self):
         return self.username

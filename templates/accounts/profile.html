@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Profile | PinoyRSS{% endblock %}
+{% block main_class %}page-narrow{% endblock %}
+
+{% block content %}
+<header class="profile-head">
+    <div class="avatar" aria-hidden="true">{{ user.display_name|default:user.username|slice:":1"|upper }}</div>
+    <div>
+        <h1>{{ user.display_name|default:user.username }}</h1>
+        <p class="muted">@{{ user.username }}
+            {% if user.role == 'admin' %}<span class="chip">Administrator</span>{% endif %}</p>
+    </div>
+</header>
+
+<section class="stat-row">
+    <a class="stat" href="{% url 'my_bookmarks' %}"><b>{{ bookmark_count }}</b><span>bookmarks</span></a>
+    <div class="stat"><b>{{ user.date_joined|date:"M Y" }}</b><span>member since</span></div>
+    <div class="stat"><b>{% if user.updated_at %}{{ user.updated_at|date:"M j" }}{% else %}Never{% endif %}</b><span>last updated</span></div>
+</section>
+
+<form class="panel form" method="post">
+    <h2>Account details</h2>
+    {% csrf_token %}
+    <p class="readonly"><label>Username</label><span>{{ user.username }}</span></p>
+    {{ form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+    </div>
+</form>
+
+<section class="panel">
+    <h2>Security</h2>
+    <p class="muted">Use a password of at least 8 characters that you don't use elsewhere.</p>
+    <a class="btn btn-ghost" href="{% url 'password_change' %}">Change password</a>
+</section>
+
+{% if recent_bookmarks %}
+<section class="panel">
+    <div class="block-head"><h2>Recently saved</h2><a href="{% url 'my_bookmarks' %}">All bookmarks</a></div>
+    <ul class="mini-list">
+        {% for b in recent_bookmarks %}
+        <li><a href="{% url 'article_detail' b.article.id %}">{{ b.article.title }}</a><span>{{ b.article.outlet.outlet_name }}</span></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<section class="panel panel-quiet">
+    <h2>Done for now?</h2>
+    <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+        <button type="submit" class="btn btn-ink"><svg aria-hidden="true"><use href="#i-logout"/></svg>Log out</button>
+    </form>
+</section>
+{% endblock %}

@@ -3,7 +3,7 @@ from django.db.models import Q
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=100, unique=True)  # BR-06
+    category_name = models.CharField(max_length=100, unique=True)  
     description = models.CharField(max_length=255, blank=True)
 
     class Meta:
@@ -15,8 +15,8 @@ class Category(models.Model):
 
 
 class NewsOutlet(models.Model):
-    outlet_name = models.CharField(max_length=150, unique=True)  # BR-07
-    feed_url = models.URLField(unique=True)                      # BR-07
+    outlet_name = models.CharField(max_length=150, unique=True) 
+    feed_url = models.URLField(unique=True)                      
     country = models.CharField(max_length=50, default='Philippines')
     is_active = models.BooleanField(default=True)
 

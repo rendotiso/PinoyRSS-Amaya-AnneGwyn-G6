@@ -1,0 +1,24 @@
+<article class="story">
+    <div class="story-meta">
+        <span class="story-outlet">{{ article.outlet.outlet_name }}</span>
+        <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"M j, Y" }}</time>
+        {% if article.category %}
+        <a class="chip" href="{% url 'article_list' %}?category={{ article.category_id }}">{{ article.category.category_name }}</a>
+        {% endif %}
+    </div>
+    <h3 class="story-title"><a href="{% url 'article_detail' article.id %}">{{ article.title }}</a></h3>
+    {% if article.summary %}<p class="story-summary">{{ article.summary|truncatewords:32 }}</p>{% endif %}
+    <div class="story-actions">
+        <a class="btn btn-soft btn-sm" href="{% url 'article_detail' article.id %}">Read here</a>
+        {% if article.bookmark_id %}
+        <a class="btn btn-saved btn-sm" href="{% url 'edit_bookmark' article.bookmark_id %}?next={{ request.get_full_path|urlencode }}" title="Edit note or category">
+            <svg aria-hidden="true"><use href="#i-bookmark-fill"/></svg>Saved</a>
+        {% else %}
+        <form method="post" action="{% url 'add_bookmark' article.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-ghost btn-sm"><svg aria-hidden="true"><use href="#i-bookmark"/></svg>Save</button>
+        </form>
+        {% endif %}
+    </div>
+</article>

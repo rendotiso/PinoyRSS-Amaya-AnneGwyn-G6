@@ -2,8 +2,6 @@
 
 PinoyRSS is a mobile news aggregator that delivers pre-curated and ad-free articles from verified Philippine news outlets. It is designed to eliminate the barrier from traditional RSS readers by providing a built-in library of trusted feeds that users can browse, search, filter and bookmark and read within the app.
 
-##
-
 ## Setup
 
 > [!NOTE]

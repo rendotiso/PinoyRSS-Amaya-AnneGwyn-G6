@@ -2,12 +2,27 @@
 
 PinoyRSS is a mobile news aggregator that delivers pre-curated and ad-free articles from verified Philippine news outlets. It is designed to eliminate the barrier from traditional RSS readers by providing a built-in library of trusted feeds that users can browse, search, filter and bookmark and read within the app.
 
+##
+
 ## Setup
+
+> [!NOTE]
+> `Ensure you have pip installed. check using: pip --verison to verify`
 
 ```bash
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env                                  # then fill in SECRET_KEY and DATABASE_URL; copy instead of cp in Windows
+cp .env.example .env                                  # Windows: copy .env.example .env
+```
+Inside the .env file, input the SECRET_KEY and DATABASE_URL. 
+
+* SECRET_KEY can be generated through the command: `python -c "import secrets; print(secrets.token_urlsafe(50))"`.
+
+* DATABASE_URL is reccomended using Supabase. The steps to get the URL are: `connect > Direct > Transaction pooler.`
+
+Next steps are to migrate and create your superuser account. This account will have the Admin role can be accessed by logging your superuser credentials in the website.
+
+```bash
 python manage.py migrate
 python manage.py createsuperuser                      # then set Role = Admin in /admin/ for the admin dashboard
 python manage.py seed_library                         # default categories + starter Philippine outlets

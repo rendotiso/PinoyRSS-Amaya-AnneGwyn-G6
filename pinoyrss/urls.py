@@ -6,5 +6,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('dashboard.urls')),
-    path('', include('bookmarks.urls')), 
+    path('', include('feeds.urls')),
+    path('', include('bookmarks.urls')),
 ]

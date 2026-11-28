@@ -1,29 +1,62 @@
 {% extends "base.html" %}
+{% block title %}Home | PinoyRSS{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Welcome, {{ user.first_name|default:user.username }}!</h2>
-    
-    <ul style="list-style-type: none; padding: 0; margin-bottom: 20px;">
-        <li><strong>Role:</strong> {{ user.get_role_display|default:"User" }}</li>
-        <li><strong>Last login:</strong> {{ user.last_login|date:"M d, Y"|default:"First time here!" }}</li>
-    </ul>
-
-    <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="{% url 'article_list' %}">
-            <button type="button">Read News</button>
-        </a>
-        <a href="{% url 'my_bookmarks' %}">
-            <button type="button" style="background-color: #0056b3;">My Bookmarks</button>
-        </a>
-
-        {% if is_admin %}
-            <a href="{% url 'admin_panel' %}">
-                <button type="button" style="background-color: #e11d48;">Admin Panel</button>
-            </a>
-        {% endif %}
+<section class="hero">
+    <div class="hero-body">
+        <h1>Magandang araw, {{ user.display_name|default:user.username }}.</h1>
+        <p>Trusted Philippine news, without the clickbait. {% if today_count %}{{ today_count }} new stor{{ today_count|pluralize:"y,ies" }} in the last 24 hours.{% else %}Run the feed fetch to bring in today's stories.{% endif %}</p>
+        <form class="search-big" action="{% url 'article_list' %}" method="get" role="search">
+            <svg aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="search" name="q" placeholder="Search headlines and summaries" aria-label="Search articles">
+            <button class="btn btn-ink" type="submit">Search</button>
+        </form>
     </div>
-</div>
+</section>
+
+<section class="stat-row" aria-label="At a glance">
+    <a class="stat" href="{% url 'article_list' %}"><b>{{ today_count }}</b><span>new today</span></a>
+    <a class="stat" href="{% url 'my_bookmarks' %}"><b>{{ bookmark_count }}</b><span>bookmarked</span></a>
+    <div class="stat"><b>{{ outlet_count }}</b><span>trusted outlets</span></div>
+</section>
+
+{% if categories %}
+<section class="block">
+    <div class="block-head"><h2>Browse by topic</h2><a href="{% url 'category_list' %}">All categories</a></div>
+    <div class="chip-row">
+        {% for c in categories %}<a class="chip chip-lg" href="{% url 'article_list' %}?category={{ c.id }}">{{ c.category_name }} <small>{{ c.n }}</small></a>{% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="block">
+    <div class="block-head"><h2>Latest stories</h2><a href="{% url 'article_list' %}">See all news</a></div>
+    <div class="stories">
+        {% for article in latest %}{% include "partials/article_card.html" %}
+        {% empty %}
+        <div class="empty">
+            <h3>No stories yet</h3>
+            <p>The library is empty. {% if is_admin %}Run <code>python manage.py seed_library</code> then <code>python manage.py fetch_rss</code>.{% else %}Please check back soon.{% endif %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% if recent_bookmarks %}
+<section class="block">
+    <div class="block-head"><h2>Pick up where you left off</h2><a href="{% url 'my_bookmarks' %}">All bookmarks</a></div>
+    <ul class="mini-list">
+        {% for b in recent_bookmarks %}
+        <li><a href="{% url 'article_detail' b.article.id %}">{{ b.article.title }}</a><span>{{ b.article.outlet.outlet_name }}</span></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{% if is_admin %}
+<section class="block">
+    <a class="admin-strip" href="{% url 'admin_panel' %}"><svg aria-hidden="true"><use href="#i-shield"/></svg>
+        <span><b>Admin panel</b> Manage outlets, categories and users</span></a>
+</section>
+{% endif %}
 {% endblock %}

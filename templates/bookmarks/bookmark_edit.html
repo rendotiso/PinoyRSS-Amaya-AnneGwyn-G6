@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Edit bookmark | PinoyRSS{% endblock %}
+{% block main_class %}page-narrow{% endblock %}
+
+{% block content %}
+<header class="page-head">
+    <h1>Edit bookmark</h1>
+</header>
+
+<div class="panel">
+    <div class="story-meta">
+        <span class="story-outlet">{{ bookmark.article.outlet.outlet_name }}</span>
+        <time>{{ bookmark.article.published_at|date:"M j, Y" }}</time>
+    </div>
+    <h3 class="story-title"><a href="{% url 'article_detail' bookmark.article.id %}">{{ bookmark.article.title }}</a></h3>
+</div>
+
+<form class="panel form" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {{ form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-ghost" href="{% if next %}{{ next }}{% else %}{% url 'my_bookmarks' %}{% endif %}">Cancel</a>
+    </div>
+</form>
+{% endblock %}

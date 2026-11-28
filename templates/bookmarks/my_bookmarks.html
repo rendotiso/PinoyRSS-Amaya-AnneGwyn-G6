@@ -1,32 +1,51 @@
 {% extends 'base.html' %}
+{% block title %}Bookmarks | PinoyRSS{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>My Bookmarks</h2>
+<header class="page-head">
+    <h1>My bookmarks</h1>
+    <p>{{ total }} saved stor{{ total|pluralize:"y,ies" }}. Add notes and re-file them under your own categories.</p>
+</header>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 10px; margin-bottom: 10px; background: #fef08a; border: 1px solid #eab308;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    <ul style="list-style-type: none; padding: 0;">
-        {% for bookmark in bookmarks %}
-            <li style="border-bottom: 1px solid #ddd; padding: 15px 0; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3><a href="{{ bookmark.article.article_url }}" target="_blank">{{ bookmark.article.title }}</a></h3>
-                    <p style="font-size: 0.9em; color: #666;">Saved on {{ bookmark.bookmarked_at|date:"M d, Y" }}</p>
-                </div>
-                <form method="post" action="{% url 'delete_bookmark' bookmark.id %}">
-                    {% csrf_token %}
-                    <button type="submit" style="background-color: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Remove</button>
-                </form>
-            </li>
-        {% empty %}
-            <p>You haven't bookmarked any articles yet.</p>
-        {% endfor %}
-    </ul>
+<form class="filters" method="get" role="search">
+    <div class="search-row">
+        <svg aria-hidden="true"><use href="#i-search"/></svg>
+        <input type="search" name="q" value="{{ q }}" placeholder="Search saved titles and notes" aria-label="Search bookmarks">
+        <select name="category" aria-label="Filter by category" class="inline-select">
+            <option value="">All categories</option>
+            {% for c in categories %}<option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.category_name }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+<div class="stories">
+    {% for bookmark in page.object_list %}
+    <article class="story">
+        <div class="story-meta">
+            <span class="story-outlet">{{ bookmark.article.outlet.outlet_name }}</span>
+            <span>Saved {{ bookmark.bookmarked_at|date:"M j, Y" }}</span>
+            {% if bookmark.display_category %}<a class="chip" href="?category={{ bookmark.display_category.id }}">{{ bookmark.display_category.category_name }}</a>{% endif %}
+        </div>
+        <h3 class="story-title"><a href="{% url 'article_detail' bookmark.article.id %}">{{ bookmark.article.title }}</a></h3>
+        {% if bookmark.note %}<p class="note">{{ bookmark.note|linebreaksbr }}</p>{% endif %}
+        <div class="story-actions">
+            <a class="btn btn-soft btn-sm" href="{% url 'article_detail' bookmark.article.id %}">Read here</a>
+            <a class="btn btn-ghost btn-sm" href="{% url 'edit_bookmark' bookmark.id %}">Edit</a>
+            <form method="post" action="{% url 'delete_bookmark' bookmark.id %}" onsubmit="return confirm('Remove this bookmark?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+            </form>
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty">
+        <h3>{% if q or category %}No bookmarks match{% else %}Nothing saved yet{% endif %}</h3>
+        <p>{% if q or category %}Try a different search or category.{% else %}Tap Save on any story and it will show up here.{% endif %}</p>
+        <a class="btn btn-primary btn-sm" href="{% if q or category %}{% url 'my_bookmarks' %}{% else %}{% url 'article_list' %}{% endif %}">{% if q or category %}Show all bookmarks{% else %}Browse the news{% endif %}</a>
+    </div>
+    {% endfor %}
 </div>
+
+{% include "partials/pagination.html" %}
 {% endblock %}
